@@ -27,7 +27,7 @@ new PgStacInfra(app, buildStackName("pgSTAC"), {
   jwksUrl,
 
   bastionIpv4AllowList: [
-    "121.141.217.93", // emile work
+    "121.141.217.93/32", // emile work
   ],
   bastionUserDataPath: "./userdata.yaml",
   bastionHostCreateElasticIp: stage === "prod",
