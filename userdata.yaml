@@ -1,0 +1,15 @@
+#cloud-config
+
+# https://cloudinit.readthedocs.io/en/latest/
+# https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/amazon-linux-ami-basics.html#amazon-linux-cloud-init
+
+users:
+  - name: USERNAME # probably output of `whoami` on terminal
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - PUBLIC_SSH_KEY # probably in `cat ~/.ssh/id_*.pub` on  terminal
+
+# Example of changing SSH port (to 33333 in this case)
+# runcmd:
+#   - sed -i -e '/^#Port/s/^.*$/Port 33333/' /etc/ssh/sshd_config
+#   - service sshd restart
