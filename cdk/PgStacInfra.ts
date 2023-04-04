@@ -19,7 +19,7 @@ export class PgStacInfra extends Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
 
-    const { vpc, stage, version, jwksUrl } = props;
+    const { vpc, stage, version } = props;
 
     const { db, pgstacSecret } = new PgStacDatabase(this, "pgstac-db", {
       vpc,
@@ -86,7 +86,6 @@ export class PgStacInfra extends Stack {
         subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
       },
       apiEnv: {
-        JWKS_URL: jwksUrl,
         REQUESTER_PAYS: "true",
       },
     });
@@ -128,10 +127,4 @@ export interface Props extends StackProps {
    */
   bastionHostCreateElasticIp?: boolean;
 
-  /**
-   * URL of JWKS endpoint, provided as output from MAAP Auth system.
-   *
-   * Example: "https://cognito-idp.{region}.amazonaws.com/{region}_{userpool_id}/.well-known/jwks.json"
-   */
-  jwksUrl: string;
 }

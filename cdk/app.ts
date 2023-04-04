@@ -23,9 +23,7 @@ new PgStacInfra(app, buildStackName("pgSTAC"), {
   tags,
   stage,
   version,
-
-  jwksUrl,
-
+  
   bastionIpv4AllowList: [
     "121.141.217.93/32", // emile work
   ],
