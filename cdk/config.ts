@@ -3,7 +3,6 @@ export class Config {
   readonly version: string;
   readonly terminationProtection: boolean;
   readonly tags: Record<string, string>;
-  readonly jwksUrl: string;
 
   constructor() {
     this.stage = process.env.STAGE || "dev";
@@ -17,8 +16,6 @@ export class Config {
       version: this.version,
       stage: this.stage,
     };
-    if (!process.env.JWKS_URL) throw Error("Must provide JWKS_URL");
-    this.jwksUrl = process.env.JWKS_URL;
   }
 
   /**

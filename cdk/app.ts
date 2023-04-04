@@ -6,7 +6,7 @@ import { Vpc } from "./Vpc";
 import { Config } from "./config";
 import { PgStacInfra } from "./PgStacInfra";
 
-const { terminationProtection, stage, version, buildStackName, tags, jwksUrl } =
+const { terminationProtection, stage, version, buildStackName, tags } =
   new Config();
 
 export const app = new cdk.App({});
@@ -23,7 +23,7 @@ new PgStacInfra(app, buildStackName("pgSTAC"), {
   tags,
   stage,
   version,
-  
+
   bastionIpv4AllowList: [
     "121.141.217.93/32", // emile work
   ],
