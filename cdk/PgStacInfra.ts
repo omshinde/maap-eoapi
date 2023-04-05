@@ -62,33 +62,31 @@ export class PgStacInfra extends Stack {
       createElasticIp: props.bastionHostCreateElasticIp,
     });
 
-    const dataAccessRole = new iam.Role(this, "data-access-role", {
-      assumedBy: iam.Role.fromRoleName(
-        this, "ingestor-lambda-role", `stac-ingestion-api-${stage}`
-      )
-    });
+  
+  const dataAccessRole = new iam.Role(this, "data-access-role", {assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com")});
 
-    dataAccessRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: ["s3:Get*", "s3:List*"],
-        resources: ["arn:aws:s3:::*"],
-      })
-    );
-
-    new StacIngestor(this, "stac-ingestor", {
-      vpc,
-      stacUrl: url,
-      dataAccessRole,
-      stage,
-      stacDbSecret: pgstacSecret,
-      stacDbSecurityGroup: db.connections.securityGroups[0],
-      subnetSelection: {
-        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-      },
-      apiEnv: {
-        REQUESTER_PAYS: "true",
-      },
-    });
+  dataAccessRole.addToPolicy(
+    new iam.PolicyStatement({
+      actions: ["s3:Get*", "s3:List*"],
+      resources: ["arn:aws:s3:::*"],
+    })
+  );
+  
+  new StacIngestor(this, "stac-ingestor", {
+    vpc,
+    stacUrl: url,
+    dataAccessRole,
+    stage,
+    stacDbSecret: pgstacSecret,
+    stacDbSecurityGroup: db.connections.securityGroups[0],
+    subnetSelection: {
+      subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+    },
+    apiEnv: {
+      REQUESTER_PAYS: "true",
+    },
+  });
+  
   }
 }
 
