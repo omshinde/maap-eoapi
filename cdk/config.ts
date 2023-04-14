@@ -7,10 +7,7 @@ export class Config {
   constructor() {
     this.stage = process.env.STAGE || "dev";
     this.version = process.env.npm_package_version!; // Set by node.js
-    this.terminationProtection =
-      !!process.env.TERMINATION_PROTECTION ||
-      ["dev", "prod"].includes(this.stage);
-
+    this.terminationProtection = false;
     this.tags = {
       created_by: process.env.USER!,
       version: this.version,

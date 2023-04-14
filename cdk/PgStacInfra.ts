@@ -89,9 +89,9 @@ export class PgStacInfra extends Stack {
 
   dataAccessRole.grantAssumeRole(
     iam.Role.fromRoleName(
-         this, "ingestor-lambda-role", `stac-ingestion-api-${props.stage}`
+         this, "ingestor-lambda-role", `stac-ingestion-api-${stage}`
     )
- )
+  )
   
   }
 }
