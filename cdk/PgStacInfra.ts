@@ -32,6 +32,7 @@ export class PgStacInfra extends Stack {
           : ec2.SubnetType.PRIVATE_ISOLATED,
       },
       allocatedStorage: 1024,
+      instanceType: new ec2.InstanceType('t3.small')
     });
 
     const apiSubnetSelection: ec2.SubnetSelection = {
@@ -87,11 +88,17 @@ export class PgStacInfra extends Stack {
     },
   });
 
-  dataAccessRole.grantAssumeRole(
-    iam.Role.fromRoleName(
-         this, "ingestor-lambda-role", `stac-ingestion-api-${stage}`
+  const ingestor_lambda_role = iam.Role.fromRoleName(this, "ingestor-lambda-role", `stac-ingestion-api-${stage}`)
+
+  dataAccessRole.assumeRolePolicy?.addStatements(
+    new iam.PolicyStatement(
+      {
+        actions: ['sts:AssumeRole'], 
+        principals: [ingestor_lambda_role],
+        effect: iam.Effect.ALLOW
+      }
     )
-  )
+  );
   
   }
 }
