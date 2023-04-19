@@ -5,25 +5,28 @@ import * as cdk from "aws-cdk-lib";
 import { Vpc } from "./Vpc";
 import { Config } from "./config";
 import { PgStacInfra } from "./PgStacInfra";
-
-const { terminationProtection, stage, version, buildStackName, tags } =
+import { Roles } from "./roles";
+const { stage, version, buildStackName, tags } =
   new Config();
 
 export const app = new cdk.App({});
 
 const { vpc } = new Vpc(app, buildStackName("vpc"), {
-  terminationProtection,
+  terminationProtection: false,
   tags,
   natGatewayCount: stage === "prod" ? undefined : 1,
 });
 
+const roles = new Roles(app, buildStackName("roles"));
+
 new PgStacInfra(app, buildStackName("pgSTAC"), {
   vpc,
-  terminationProtection,
   tags,
   stage,
   version,
-
+  terminationProtection: false,
+  dataAccessRoleArn: roles.dataAccessRoleArn,
+  stacIngestorRoleArn: roles.stacIngestorApiRoleArn,
   bastionIpv4AllowList: [
     "121.141.217.93/32", // emile work
   ],
