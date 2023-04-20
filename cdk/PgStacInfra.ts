@@ -63,8 +63,27 @@ export class PgStacInfra extends Stack {
       createElasticIp: props.bastionHostCreateElasticIp,
     });
 
-  
-    
+    const apiResourcePolicy = new iam.PolicyDocument({
+      statements: [
+        new iam.PolicyStatement({
+          actions: ['execute-api:Invoke'],
+          principals: [new iam.AnyPrincipal()],
+          resources: ['execute-api:/*/*/*'],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.DENY,
+          principals: [new iam.AnyPrincipal()],
+          actions: ['execute-api:Invoke'],
+          resources: ['execute-api:/*/*/*'],
+          conditions: {
+            'NotIpAddress': {
+              "aws:SourceIp": props.ingestorApiGatewayIpv4AllowList
+            }
+          }
+        })
+      ]
+    })
+
     new StacIngestor(this, "stac-ingestor", {
       vpc,
       stacUrl: url,
@@ -79,6 +98,7 @@ export class PgStacInfra extends Stack {
       apiEnv: {
         REQUESTER_PAYS: "true",
       },
+      apiPolicy: apiResourcePolicy
     });
   
   }
@@ -115,6 +135,11 @@ export interface Props extends StackProps {
   bastionIpv4AllowList: string[];
 
   /**
+   * Which IPs to allow to access the ingestor API gatew
+   */
+  ingestorApiGatewayIpv4AllowList: string[];
+
+  /**
    * Flag to control whether the Bastion Host should make a non-dynamic elastic IP.
    */
   bastionHostCreateElasticIp?: boolean;
@@ -132,3 +157,4 @@ export interface Props extends StackProps {
   stacIngestorRoleArn: string;
 
 }
+        
