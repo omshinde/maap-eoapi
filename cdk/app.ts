@@ -6,7 +6,7 @@ import { Vpc } from "./Vpc";
 import { Config } from "./config";
 import { PgStacInfra } from "./PgStacInfra";
 import { Roles } from "./roles";
-const { stage, version, buildStackName, tags } =
+const { stage, version, buildStackName, tags, jwksUrl } =
   new Config();
 
 export const app = new cdk.App({});
@@ -24,6 +24,7 @@ new PgStacInfra(app, buildStackName("pgSTAC"), {
   tags,
   stage,
   version,
+  jwksUrl,
   terminationProtection: false,
   dataAccessRoleArn: roles.dataAccessRoleArn,
   stacIngestorRoleArn: roles.stacIngestorApiRoleArn,
