@@ -20,7 +20,7 @@ This wrapper repository only adds a VPC to add these components in and a 'bastio
 ### Steps
 
 1. add your information to `userdata.yaml` (see [asdi repository](https://github.com/developmentseed/aws-asdi-pgstac))
-2. add your IP address to the two IP whitelists in `cdk/app.ts` (see [asdi repository](https://github.com/developmentseed/aws-asdi-pgstac)). The API gateway list determines who can add/delete things from the database, and the bastion host white list determines who can directly connect to the database.
+2. add your IP address to the IP whitelist in `cdk/app.ts` (see [asdi repository](https://github.com/developmentseed/aws-asdi-pgstac)). The bastion host white list determines who can directly connect to the database.
 3. declare a `STAGE` environment variable ("test" or "prod")
 4. from the root of this repository, run then `cdk deploy --all` to deploy. 
 

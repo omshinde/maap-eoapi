@@ -37,11 +37,4 @@ new PgStacInfra(app, buildStackName("pgSTAC"), {
   ],
   bastionUserDataPath: "./userdata.yaml",
   bastionHostCreateElasticIp: stage === "prod",
-  ingestorApiGatewayIpv4AllowList: [
-    "121.141.217.93/32", // Emile work
-    "66.17.119.38/32", // Jamison
-    "131.215.220.32/32", // Aimee's home
-    "104.9.124.28/32", // Sean
-    "222.108.19.128/32", // Emile home
-  ],
 });
