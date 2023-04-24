@@ -5,7 +5,6 @@ import * as cdk from "aws-cdk-lib";
 import { Vpc } from "./Vpc";
 import { Config } from "./config";
 import { PgStacInfra } from "./PgStacInfra";
-import { Roles } from "./roles";
 const { stage, version, buildStackName, tags, jwksUrl } =
   new Config();
 
@@ -17,8 +16,6 @@ const { vpc } = new Vpc(app, buildStackName("vpc"), {
   natGatewayCount: stage === "prod" ? undefined : 1,
 });
 
-const roles = new Roles(app, buildStackName("roles"));
-
 new PgStacInfra(app, buildStackName("pgSTAC"), {
   vpc,
   tags,
@@ -26,8 +23,6 @@ new PgStacInfra(app, buildStackName("pgSTAC"), {
   version,
   jwksUrl,
   terminationProtection: false,
-  dataAccessRoleArn: roles.dataAccessRoleArn,
-  stacIngestorRoleArn: roles.stacIngestorApiRoleArn,
   bastionIpv4AllowList: [
     "121.141.217.93/32", // Emile work
     "66.17.119.38/32", // Jamison

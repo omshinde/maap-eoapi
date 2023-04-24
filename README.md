@@ -14,7 +14,7 @@ This wrapper repository only adds a VPC to add these components in and a 'bastio
 
 1. `node.js` is installed
 2. `docker` is installed and running
-3. node dependencies are installed : run `npm install` from the root of this repo.
+3. node dependencies are installed : run `npm install` from the root of this repo. :warning: See below if installing from a local version of `cdk-pgstac`.
 4. If deploying on SMCE : make sure you are properly authenticated. Refer to [these instructions](https://github.com/NASA-IMPACT/active-maap-sprint/issues/482#issuecomment-1491475121).
 
 ### Steps
@@ -26,4 +26,4 @@ This wrapper repository only adds a VPC to add these components in and a 'bastio
 
 ## Deploy with a local version of `cdk-pgstac`
 
-To do this, see [these instructions](https://github.com/developmentseed/cdk-pgstac/pull/34#issuecomment-1500558124).
+If a local filesystem version of cdk-pgstac is listed in the `package.json` dependencies, make sure to follow [these instructions](https://github.com/developmentseed/cdk-pgstac/pull/34#issuecomment-1500558124) to have the right setup.

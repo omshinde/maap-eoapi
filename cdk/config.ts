@@ -5,7 +5,8 @@ export class Config {
   readonly jwksUrl: string;
 
   constructor() {
-    this.stage = process.env.STAGE || "dev";
+    if (!process.env.STAGE) throw Error("Must provide STAGE");
+    this.stage = process.env.STAGE;
     this.version = process.env.npm_package_version!; // Set by node.js
     this.tags = {
       created_by: process.env.USER!,

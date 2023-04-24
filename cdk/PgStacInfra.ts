@@ -32,7 +32,8 @@ export class PgStacInfra extends Stack {
           : ec2.SubnetType.PRIVATE_ISOLATED,
       },
       allocatedStorage: 1024,
-      instanceType: new ec2.InstanceType('t3.small')
+      // set instance type to t3.micro if stage is test, otherwise t3.small
+      instanceType: stage === "test" ? ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO) : ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.SMALL),
     });
 
     const apiSubnetSelection: ec2.SubnetSelection = {
@@ -63,11 +64,21 @@ export class PgStacInfra extends Stack {
       createElasticIp: props.bastionHostCreateElasticIp,
     });
 
-    new StacIngestor(this, "stac-ingestor", {
+    // create data access role and let the stac-ingestor-api-role assume it. 
+    const dataAccessRole = new iam.Role(this, "data-access-role", {assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com")});
+    
+    // grant the data access role permissions to list and get s3 objects
+    dataAccessRole.addToPolicy(
+    new iam.PolicyStatement({
+        actions: ["s3:Get*", "s3:List*"],
+        resources: ["arn:aws:s3:::*"],
+    })
+    );
+
+    const stacIngestor = new StacIngestor(this, "stac-ingestor", {
       vpc,
       stacUrl: url,
-      dataAccessRoleArn: props.dataAccessRoleArn,
-      stacIngestorRoleArn: props.stacIngestorRoleArn,
+      dataAccessRole,
       stage,
       stacDbSecret: pgstacSecret,
       stacDbSecurityGroup: db.connections.securityGroups[0],
@@ -79,6 +90,14 @@ export class PgStacInfra extends Stack {
         REQUESTER_PAYS: "true",
       }
     });
+
+    const allow_policy = new iam.PolicyStatement({
+          actions: ['sts:AssumeRole'],
+          principals: [stacIngestor.handlerRole],
+          effect: iam.Effect.ALLOW
+        });
+    
+    dataAccessRole.assumeRolePolicy?.addStatements(allow_policy);
   
   }
 }
@@ -117,18 +136,6 @@ export interface Props extends StackProps {
    * Flag to control whether the Bastion Host should make a non-dynamic elastic IP.
    */
   bastionHostCreateElasticIp?: boolean;
-
-  /**
-   * ARN of AWS Role used to validate access to S3 data. 
-   */
-  dataAccessRoleArn: string;
-
-  /**
-   * ARN of AWS Role to be used by the ingestor API lambda. Must have permissions to
-   * assume the role represented by `dataAccessRoleArn` along with `service-role/AWSLambdaBasicExecutionRole` 
-   * and `service-role/AWSLambdaVPCAccessExecutionRole` managed policies.
-   */
-  stacIngestorRoleArn: string;
 
   /**
    * URL of JWKS endpoint, provided as output from ASDI-Auth.
