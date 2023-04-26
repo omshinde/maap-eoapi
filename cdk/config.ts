@@ -3,6 +3,7 @@ export class Config {
   readonly version: string;
   readonly tags: Record<string, string>;
   readonly jwksUrl: string;
+  readonly dataAccessRoleArn: string;
 
   constructor() {
     if (!process.env.STAGE) throw Error("Must provide STAGE");
@@ -15,6 +16,8 @@ export class Config {
     };
     if (!process.env.JWKS_URL) throw Error("Must provide JWKS_URL");
     this.jwksUrl = process.env.JWKS_URL;
+    if (!process.env.DATA_ACCESS_ROLE_ARN) throw Error("Must provide DATA_ACCESS_ROLE_ARN");
+    this.dataAccessRoleArn = process.env.DATA_ACCESS_ROLE_ARN!;
   }
 
   /**
