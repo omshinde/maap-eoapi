@@ -19,7 +19,7 @@ export class PgStacInfra extends Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
 
-    const { vpc, stage, version, jwksUrl} = props;
+    const { vpc, stage, version, jwksUrl, dataAccessRoleArn} = props;
 
     const { db, pgstacSecret } = new PgStacDatabase(this, "pgstac-db", {
       vpc,
@@ -64,16 +64,9 @@ export class PgStacInfra extends Stack {
       createElasticIp: props.bastionHostCreateElasticIp,
     });
 
-    // create data access role and let the stac-ingestor-api-role assume it. 
-    const dataAccessRole = new iam.Role(this, "data-access-role", {assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com")});
     
-    // grant the data access role permissions to list and get s3 objects
-    dataAccessRole.addToPolicy(
-    new iam.PolicyStatement({
-        actions: ["s3:Get*", "s3:List*"],
-        resources: ["arn:aws:s3:::*"],
-    })
-    );
+    const dataAccessRole = iam.Role.fromRoleArn(this, "data-access-role", dataAccessRoleArn);
+
 
     const stacIngestor = new StacIngestor(this, "stac-ingestor", {
       vpc,
@@ -91,14 +84,6 @@ export class PgStacInfra extends Stack {
       }
     });
 
-    const allow_policy = new iam.PolicyStatement({
-          actions: ['sts:AssumeRole'],
-          principals: [stacIngestor.handlerRole],
-          effect: iam.Effect.ALLOW
-        });
-    
-    dataAccessRole.assumeRolePolicy?.addStatements(allow_policy);
-  
   }
 }
 
@@ -144,5 +129,9 @@ export interface Props extends StackProps {
    */
   jwksUrl: string;
 
+  /**
+   * ARN of IAM role that will be assumed by the STAC Ingestor.
+   */
+  dataAccessRoleArn: string;
 }
         
