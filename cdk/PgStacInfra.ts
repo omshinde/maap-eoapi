@@ -5,6 +5,8 @@ import {
   aws_iam as iam,
   aws_ec2 as ec2,
   aws_rds as rds,
+  aws_lambda as lambda,
+  aws_iam,
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import {
@@ -42,7 +44,7 @@ export class PgStacInfra extends Stack {
         : ec2.SubnetType.PRIVATE_WITH_EGRESS,
     };
 
-    const { url } = new PgStacApiLambda(this, "pgstac-api", {
+    const stacApiLambda = new PgStacApiLambda(this, "pgstac-api", {
       apiEnv: {
         NAME: `MAAP STAC API (${stage})`,
         VERSION: version,
@@ -52,6 +54,12 @@ export class PgStacInfra extends Stack {
       db,
       dbSecret: pgstacSecret,
       subnetSelection: apiSubnetSelection,
+    });
+
+
+    stacApiLambda.stacApiLambdaFunction.addPermission('ApiGatewayInvoke', {
+      principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+      sourceArn: props.stacApiGatewayRoleArn,
     });
 
     new BastionHost(this, "bastion-host", {
@@ -70,7 +78,7 @@ export class PgStacInfra extends Stack {
 
     const stacIngestor = new StacIngestor(this, "stac-ingestor", {
       vpc,
-      stacUrl: url,
+      stacUrl: stacApiLambda.url,
       dataAccessRole,
       stage,
       stacDbSecret: pgstacSecret,
@@ -133,5 +141,10 @@ export interface Props extends StackProps {
    * ARN of IAM role that will be assumed by the STAC Ingestor.
    */
   dataAccessRoleArn: string;
+
+  /**
+   * STAC API api gateway role ARN, to which we grant STAC API lambda invoke permission.
+   */
+  stacApiGatewayRoleArn: string;
 }
         
