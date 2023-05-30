@@ -59,7 +59,7 @@ export class PgStacInfra extends Stack {
 
     stacApiLambda.stacApiLambdaFunction.addPermission('ApiGatewayInvoke', {
       principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
-      sourceArn: props.stacApiGatewayRoleArn,
+      sourceArn: props.stacApiIntegrationApiArn,
     });
 
     new BastionHost(this, "bastion-host", {
@@ -143,8 +143,8 @@ export interface Props extends StackProps {
   dataAccessRoleArn: string;
 
   /**
-   * STAC API api gateway role ARN, to which we grant STAC API lambda invoke permission.
+   * STAC API api gateway source ARN to be granted STAC API lambda invoke permission.
    */
-  stacApiGatewayRoleArn: string;
+  stacApiIntegrationApiArn: string;
 }
         
