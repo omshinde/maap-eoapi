@@ -11,7 +11,6 @@ export class Config {
     this.stage = process.env.STAGE;
     this.version = process.env.npm_package_version!; // Set by node.js
     this.tags = {
-      created_by: process.env.USER!,
       version: this.version,
       stage: this.stage,
     };
