@@ -14,14 +14,16 @@ import {
   PgStacApiLambda,
   PgStacDatabase,
   StacIngestor,
+  TitilerPgstacApiLambda
 } from "cdk-pgstac";
 import { readFileSync } from "fs";
+import { load } from "js-yaml";
 
 export class PgStacInfra extends Stack {
   constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
 
-    const { vpc, stage, version, jwksUrl, dataAccessRoleArn, allocatedStorage} = props;
+    const { vpc, stage, version, jwksUrl, dataAccessRoleArn, allocatedStorage, titilerBucketsPath} = props;
 
     const { db, pgstacSecret } = new PgStacDatabase(this, "pgstac-db", {
       vpc,
@@ -56,6 +58,22 @@ export class PgStacInfra extends Stack {
       subnetSelection: apiSubnetSelection,
     });
 
+
+    const fileContents = readFileSync(titilerBucketsPath, 'utf8')
+    const buckets = load(fileContents) as string[];
+
+    new TitilerPgstacApiLambda(this, "titiler-pgstac-api", {
+      apiEnv: {
+        NAME: `MAAP titiler pgstac API (${stage})`,
+        VERSION: version,
+        DESCRIPTION: "titiler pgstac API for the MAAP STAC system.",
+      },
+      vpc,
+      db,
+      dbSecret: pgstacSecret,
+      subnetSelection: apiSubnetSelection,
+      buckets: buckets
+    });
 
     stacApiLambda.stacApiLambdaFunction.addPermission('ApiGatewayInvoke', {
       principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
@@ -151,5 +169,10 @@ export interface Props extends StackProps {
    * allocated storage for pgstac database
    */
   allocatedStorage: number;
+
+  /**
+   * yaml file containing the list of buckets the titiler lambda should be granted access to
+   */
+  titilerBucketsPath: string;
 }
         
