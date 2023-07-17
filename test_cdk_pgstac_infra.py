@@ -83,7 +83,7 @@ except:
 
 #Authentication - Get secret value
 stage = "dev"
-stac_register_service_id = "MAAP-workflows-EsykqB"
+stac_register_service_id = "MAAP-workflows"
 stack_name = f"MAAP-STAC-auth-{stage}"
 
 # session = boto3.session.Session()
@@ -100,8 +100,9 @@ except client.exceptions.ResourceNotFoundException:
     )
 
 #Authentication - Get TOKEN
-client_secret = json.loads(res_secret["SecretString"])
-client_id = ""
+secret = json.loads(res_secret["SecretString"])
+client_secret = secret["client_secret"]
+client_id = secret["client_id"]
 cognito_domain = "https://maap-stac-auth-dev.auth.us-west-2.amazoncognito.com"
 scope = "MAAP-STAC-ingestion-registry-server/stac:register"
 
