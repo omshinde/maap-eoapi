@@ -70,16 +70,16 @@ class StacIngestion:
                     },
                 )
 
-        authentication_token = res_token.json()["access_token"]
-        return authentication_token
+        token = res_token.json()["access_token"]
+        return token
 
-    def insert_collection(self, authentication_token, collection):
-        headers = {"Authorization": f"bearer {authentication_token}"}
+    def insert_collection(self, token, collection):
+        headers = {"Authorization": f"bearer {token}"}
         response = requests.post(self.base_url + self.collections_endpoint, json=collection, headers=headers)
         return response
 
-    def insert_item(self, authentication_token, item):
-        headers = {"Authorization": f"bearer {authentication_token}"}
+    def insert_item(self, token, item):
+        headers = {"Authorization": f"bearer {token}"}
         response = requests.post(self.base_url + self.items_endpoint, json=item, headers=headers)
         return response
 
