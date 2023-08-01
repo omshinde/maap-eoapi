@@ -12,8 +12,6 @@ jobs:
         steps:
           - name: Checkout repository
             uses: actions/checkout@v3
-            with:
-                path: tests-infra-pytest
 
           - name: Setup Python
             uses: actions/setup-python@v3
