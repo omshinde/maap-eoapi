@@ -1,5 +1,6 @@
 pytest
 boto3
 pystac
+pystac[validation]
 python-dotenv
 requests
