@@ -1,8 +1,9 @@
 ---
 name: "PyTest tests"
 on:
-    schedule:
-        - cron: '* * * * 1'
+    push:
+        branches:
+            - "tests-infra-pytest"
 
 jobs:
     python-job:
@@ -23,7 +24,7 @@ jobs:
             run: |
                 python -m pip install --upgrade pip
                 pip install -r requirements.txt
-                
+
           - name: Run pytest
             working-directory: ./tests
             run: |
