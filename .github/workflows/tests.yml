@@ -18,6 +18,13 @@ jobs:
             with:
                 python-version: '3.11.4'
 
+          - name: Assume Github OIDC role
+            uses: aws-actions/configure-aws-credentials@v2
+            with:
+                aws-region: us-west-2
+                role-to-assume: arn:aws:iam::916098889494:role/GithubOIDCRole-MAAP-Project-maap-eoapi-test
+                role-session-name: maap-eoapi-test
+
           - name: Install dependencies
             run: |
                 python -m pip install --upgrade pip
@@ -26,6 +33,3 @@ jobs:
           - name: Run pytest
             run: |
                 pytest tests
-              
-
-
