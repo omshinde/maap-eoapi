@@ -1,4 +1,8 @@
-name: "PyTest tests"
+name: tests
+
+permissions:
+    id-token: write  # required for requesting the JWT
+    contents: read  # required for actions/checkout
 
 on:
     push:
