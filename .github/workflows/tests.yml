@@ -40,7 +40,7 @@ jobs:
             env:
                 INGESTOR_URL: ${{ vars.INGESTOR_URL }}
                 STAC_REGISTER_SERVICE_ID: ${{ vars.STAC_REGISTER_SERVICE_ID }}
-                REGION_NAME: ${{ vars.REGION_NAME }}
+                REGION_NAME: "us-west-2"
                 COGNITO_DOMAIN: ${{ vars.COGNITO_DOMAIN }}
                 SCOPE: ${{ vars.SCOPE }}
             run: |
