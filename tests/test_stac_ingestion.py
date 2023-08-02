@@ -50,7 +50,7 @@ def test_query_items(stac_ingestion_instance, test_collection, test_item):
     items = response.json()["features"]
     assert any(
         item["id"] == test_item["id"] for item in items
-    ), f"Inserted item {test_item} \n not found in the queried items {items}"
+    ), f"Inserted item - {test_item} \n not found in the queried items {items}"
 
 
 # Run the tests
