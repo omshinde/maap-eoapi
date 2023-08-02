@@ -1,5 +1,5 @@
----
 name: "PyTest tests"
+
 on:
     push:
         branches:
@@ -9,6 +9,8 @@ jobs:
     python-job:
         name: "PyTest tests"
         runs-on: ubuntu-latest
+        environment: "test"
+
         steps:
           - name: Checkout repository
             uses: actions/checkout@v3
@@ -31,5 +33,11 @@ jobs:
                 pip install -r tests/requirements.txt
 
           - name: Run pytest
+            env:
+                INGESTOR_URL: ${{ vars.INGESTOR_URL }}
+                STAC_REGISTER_SERVICE_ID: ${{ vars.STAC_REGISTER_SERVICE_ID }}
+                REGION_NAME: ${{ vars.REGION_NAME }}
+                COGNITO_DOMAIN: ${{ vars.COGNITO_DOMAIN }}
+                SCOPE: ${{ vars.SCOPE }}
             run: |
                 pytest tests

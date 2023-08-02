@@ -4,19 +4,16 @@ import pystac
 from pystac import STACValidationError
 import os
 import boto3
-from dotenv import load_dotenv
-
-load_dotenv()
 
 class StacIngestion:
 
     """Class representing various test operations"""
 
     def __init__(self):
-        self.base_url = os.getenv("BASE_URL")
-        self.stac_url = os.getenv("STAC_URL")
-        self.collections_endpoint = os.getenv("COLLECTIONS_ENDPOINT")
-        self.items_endpoint = os.getenv("ITEMS_ENDPOINT")
+        self.ingestor_url = os.getenv("INGESTOR_URL")
+        self.stac_url = "https://stac.test.maap-project.org"
+        self.collections_endpoint = "/collections"
+        self.items_endpoint = "/ingestions"
         self.current_file_path = os.path.dirname(os.path.abspath(__file__))
 
     def validate_collection(self, collection):
@@ -33,9 +30,8 @@ class StacIngestion:
 
     def get_authentication_token(self):
         #Authentication - Get secret value
-        stage = os.getenv("STAGE")
         stac_register_service_id = os.getenv("STAC_REGISTER_SERVICE_ID")
-        stack_name = f"MAAP-STAC-auth-{stage}"
+        stack_name = f"MAAP-STAC-auth-dev"
 
         # session = boto3.session.Session()
         client = boto3.client("secretsmanager", region_name=os.getenv("REGION_NAME"))
@@ -75,12 +71,12 @@ class StacIngestion:
 
     def insert_collection(self, token, collection):
         headers = {"Authorization": f"bearer {token}"}
-        response = requests.post(self.base_url + self.collections_endpoint, json=collection, headers=headers)
+        response = requests.post(self.ingestor_url + self.collections_endpoint, json=collection, headers=headers)
         return response
 
     def insert_item(self, token, item):
         headers = {"Authorization": f"bearer {token}"}
-        response = requests.post(self.base_url + self.items_endpoint, json=item, headers=headers)
+        response = requests.post(self.ingestor_url + self.items_endpoint, json=item, headers=headers)
         return response
 
     def query_collection(self, collection_id):
