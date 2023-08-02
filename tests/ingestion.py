@@ -5,6 +5,7 @@ from pystac import STACValidationError
 import os
 import boto3
 
+
 class StacIngestion:
 
     """Class representing various test operations"""
@@ -29,7 +30,7 @@ class StacIngestion:
             raise STACValidationError("Validation failed for the item")
 
     def get_authentication_token(self):
-        #Authentication - Get secret value
+        # Authentication - Get secret value
         stac_register_service_id = os.getenv("STAC_REGISTER_SERVICE_ID")
         stack_name = f"MAAP-STAC-auth-dev"
 
@@ -46,7 +47,7 @@ class StacIngestion:
                 "AWS_PROFILE is set on your environment."
             )
 
-        #Authentication - Get TOKEN
+        # Authentication - Get TOKEN
         secret = json.loads(res_secret["SecretString"])
         client_secret = secret["client_secret"]
         client_id = secret["client_id"]
@@ -54,46 +55,61 @@ class StacIngestion:
         scope = os.getenv("SCOPE")
 
         res_token = requests.post(
-                    f"{cognito_domain}/oauth2/token",
-                    headers={
-                        "Content-Type":"application/x-www-form-urlencoded",
-                    },
-                    auth=(client_id, client_secret),
-                    data={
-                        "grant_type":"client_credentials",
-                        # A space-separated list of scopes to request for the generated access token.
-                        "scope": scope,
-                    },
-                )
+            f"{cognito_domain}/oauth2/token",
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            auth=(client_id, client_secret),
+            data={
+                "grant_type": "client_credentials",
+                # A space-separated list of scopes to request for the generated access token.
+                "scope": scope,
+            },
+        )
 
         token = res_token.json()["access_token"]
         return token
 
     def insert_collection(self, token, collection):
         headers = {"Authorization": f"bearer {token}"}
-        response = requests.post(self.ingestor_url + self.collections_endpoint, json=collection, headers=headers)
+        response = requests.post(
+            self.ingestor_url + self.collections_endpoint,
+            json=collection,
+            headers=headers,
+        )
         return response
 
     def insert_item(self, token, item):
         headers = {"Authorization": f"bearer {token}"}
-        response = requests.post(self.ingestor_url + self.items_endpoint, json=item, headers=headers)
+        response = requests.post(
+            self.ingestor_url + self.items_endpoint, json=item, headers=headers
+        )
         return response
 
     def query_collection(self, collection_id):
-        response = requests.get(self.stac_url + self.collections_endpoint + f"/{collection_id}")
+        response = requests.get(
+            self.stac_url + self.collections_endpoint + f"/{collection_id}"
+        )
         return response
 
     def query_items(self, collection_id):
-        response = requests.get(self.stac_url + self.collections_endpoint + f"/{collection_id}/items")
+        response = requests.get(
+            self.stac_url + self.collections_endpoint + f"/{collection_id}/items"
+        )
         return response
 
     def get_test_collection(self):
-        with open(os.path.join(self.current_file_path, 'fixtures', 'test_collection.json'), 'r') as f:
-            test_collection = json.load(f)        
+        with open(
+            os.path.join(self.current_file_path, "fixtures", "test_collection.json"),
+            "r",
+        ) as f:
+            test_collection = json.load(f)
         return test_collection
 
     def get_test_item(self):
         print(os.getcwd())
-        with open(os.path.join(self.current_file_path, 'fixtures', 'test_item.json'), 'r') as f:
+        with open(
+            os.path.join(self.current_file_path, "fixtures", "test_item.json"), "r"
+        ) as f:
             test_item = json.load(f)
         return test_item
