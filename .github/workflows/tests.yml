@@ -39,9 +39,6 @@ jobs:
           - name: Run pytest
             env:
                 INGESTOR_URL: ${{ vars.INGESTOR_URL }}
-                STAC_REGISTER_SERVICE_ID: ${{ vars.STAC_REGISTER_SERVICE_ID }}
-                REGION_NAME: "us-west-2"
-                COGNITO_DOMAIN: ${{ vars.COGNITO_DOMAIN }}
-                SCOPE: ${{ vars.SCOPE }}
+                SECRET_ID: ${{ vars.SECRET_ID }}
             run: |
                 pytest tests

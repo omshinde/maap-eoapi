@@ -30,13 +30,10 @@ class StacIngestion:
             raise STACValidationError("Validation failed for the item")
 
     def get_authentication_token(self):
-        # Authentication - Get secret value
-        stac_register_service_id = os.getenv("STAC_REGISTER_SERVICE_ID")
-        stack_name = f"MAAP-STAC-auth-dev"
 
         # session = boto3.session.Session()
-        client = boto3.client("secretsmanager", region_name=os.getenv("REGION_NAME"))
-        secret_id = f"{stack_name}/{stac_register_service_id}"
+        client = boto3.client("secretsmanager", region_name="us-west-2")
+        secret_id = os.getenv("SECRET_ID")
 
         try:
             res_secret = client.get_secret_value(SecretId=secret_id)
@@ -51,8 +48,8 @@ class StacIngestion:
         secret = json.loads(res_secret["SecretString"])
         client_secret = secret["client_secret"]
         client_id = secret["client_id"]
-        cognito_domain = os.getenv("COGNITO_DOMAIN")
-        scope = os.getenv("SCOPE")
+        cognito_domain = secret['cognito_domain']
+        scope = secret['scope']
 
         res_token = requests.post(
             f"{cognito_domain}/oauth2/token",
