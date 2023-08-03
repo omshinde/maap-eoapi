@@ -46,9 +46,7 @@ def test_query_items(stac_ingestion_instance, test_collection, test_item):
     assert response.status_code in [200, 201], f"Failed to query the items {response.text}"
     item = response.json()["features"][0]
     print(item)
-    assert any(
-        item["id"] == test_item["id"]
-    ), f"Inserted item - {test_item} \n not found in the queried items {items}"
+    assert item["id"] == test_item["id"], f"Inserted item - {test_item} \n not found in the queried items {items}"
 
 
 # Run the tests
