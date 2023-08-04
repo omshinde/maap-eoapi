@@ -42,6 +42,13 @@ def test_query_items(stac_ingestion_instance, test_collection, test_item):
     assert item["id"] == test_item["id"], f"Inserted item - {test_item} \n not found in the queried items {item}"
 
 
+# Test querying collection and verifying inserted collection
+def test_delete_collection(
+    stac_ingestion_instance, authentication_token, test_collection
+):
+    response = stac_ingestion_instance.delete_collection(authentication_token, test_collection["id"])
+    assert response.status_code in [200, 201], f"Failed to delete the test_collection :\n{response.text}"
+
 # Run the tests
 if __name__ == "__main__":
     pytest.main()

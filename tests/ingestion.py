@@ -48,8 +48,8 @@ class StacIngestion:
         secret = json.loads(res_secret["SecretString"])
         client_secret = secret["client_secret"]
         client_id = secret["client_id"]
-        cognito_domain = secret['cognito_domain']
-        scope = secret['scope']
+        cognito_domain = secret["cognito_domain"]
+        scope = secret["scope"]
 
         res_token = requests.post(
             f"{cognito_domain}/oauth2/token",
@@ -110,3 +110,11 @@ class StacIngestion:
         ) as f:
             test_item = json.load(f)
         return test_item
+
+    def delete_collection(self, token, collection_id):
+        headers = {"Authorization": f"bearer {token}"}
+        response = requests.delete(
+            self.stac_url + self.collections_endpoint + f"/{collection_id}",
+            headers=headers,
+        )
+        return response
