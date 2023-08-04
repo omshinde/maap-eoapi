@@ -114,7 +114,7 @@ class StacIngestion:
     def delete_collection(self, token, collection_id):
         headers = {"Authorization": f"bearer {token}"}
         response = requests.delete(
-            self.stac_url + self.collections_endpoint + f"/{collection_id}",
+            self.ingestor_url + self.collections_endpoint + f"/{collection_id}",
             headers=headers,
         )
         return response
