@@ -8,7 +8,7 @@ on:
     push:
         branches:
             - "tests-infra-pytest"
-            
+
     # Uncomment below for running it as a cron job
     #schedule:
         # runs every Monday at 1400 UTC
@@ -33,7 +33,7 @@ jobs:
             uses: aws-actions/configure-aws-credentials@v2
             with:
                 aws-region: us-west-2
-                role-to-assume: arn:aws:iam::916098889494:role/GithubOIDCRole-MAAP-Project-maap-eoapi-test
+                role-to-assume: ${{ vars.MAAP_EOAPI_TEST_ROLE }}
                 role-session-name: maap-eoapi-test
 
           - name: Install dependencies
