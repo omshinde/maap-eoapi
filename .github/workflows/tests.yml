@@ -8,6 +8,11 @@ on:
     push:
         branches:
             - "tests-infra-pytest"
+            
+    # Uncomment below for running it as a cron job
+    #schedule:
+        # runs every Monday at 1400 UTC
+       #- cron: '* 14 * * 1'
 
 jobs:
     python-job:
