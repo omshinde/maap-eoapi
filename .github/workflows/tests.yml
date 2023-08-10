@@ -5,14 +5,13 @@ permissions:
     contents: read  # required for actions/checkout
 
 on:
-    push:
-        branches:
-            - "tests-infra-pytest"
+    # push:
+    #     branches:
+    #         - "tests-infra-pytest"
 
     # Uncomment below for running it as a cron job
-    #schedule:
-        # runs every Monday at 1400 UTC
-       #- cron: '* 14 * * 1'
+    schedule:
+       - cron: '* 14 * * 5'
 
 jobs:
     python-job:
@@ -23,6 +22,8 @@ jobs:
         steps:
           - name: Checkout repository
             uses: actions/checkout@v3
+            with:
+              ref: tests-infra-pytest
 
           - name: Setup Python
             uses: actions/setup-python@v3
