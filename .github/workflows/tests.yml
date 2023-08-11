@@ -5,9 +5,13 @@ permissions:
     contents: read  # required for actions/checkout
 
 on:
-    push:
-        branches:
-            - "tests-infra-pytest"
+    # push:
+    #     branches:
+    #         - "tests-infra-pytest"
+
+    # Uncomment below for running it as a cron job
+    schedule:
+       - cron: '15 16 * * 5'
 
 jobs:
     python-job:
@@ -18,6 +22,8 @@ jobs:
         steps:
           - name: Checkout repository
             uses: actions/checkout@v3
+            with:
+              ref: tests-infra-pytest
 
           - name: Setup Python
             uses: actions/setup-python@v3
@@ -28,7 +34,7 @@ jobs:
             uses: aws-actions/configure-aws-credentials@v2
             with:
                 aws-region: us-west-2
-                role-to-assume: arn:aws:iam::916098889494:role/GithubOIDCRole-MAAP-Project-maap-eoapi-test
+                role-to-assume: ${{ vars.MAAP_EOAPI_TEST_ROLE }}
                 role-session-name: maap-eoapi-test
 
           - name: Install dependencies
