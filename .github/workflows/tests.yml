@@ -11,7 +11,7 @@ on:
 
     # Uncomment below for running it as a cron job
     schedule:
-       - cron: '* 15 * * 4'
+       - cron: '15 15 * * 5'
 
 jobs:
     python-job:
