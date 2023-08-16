@@ -17,7 +17,11 @@ const {
   certificateArn,
   ingestorDomainName,
   stacApiCustomDomainName,
+  stacApiRegionalDomainName,
+  stacApiRegionalHostedZoneId,
   titilerPgStacApiCustomDomainName,
+  titilerPgStacApiRegionalDomainName,
+  titilerPgStacApiRegionalHostedZoneId,
 } = new Config();
 
 export const app = new cdk.App({});
@@ -49,7 +53,14 @@ new PgStacInfra(app, buildStackName("pgSTAC"), {
   allocatedStorage: dbAllocatedStorage,
   titilerBucketsPath: "./titiler_buckets.yaml",
   certificateArn: certificateArn,
+
   IngestorDomainName: ingestorDomainName,
+
   stacApiCustomDomainName: stacApiCustomDomainName,
+  stacApiRegionalDomainName: stacApiRegionalDomainName,
+  stacApiRegionalHostedZoneId: stacApiRegionalHostedZoneId,
+
   titilerPgStacApiCustomDomainName: titilerPgStacApiCustomDomainName,
+  titilerPgStacApiRegionalDomainName: titilerPgStacApiRegionalDomainName,
+  titilerPgStacApiRegionalHostedZoneId: titilerPgStacApiRegionalHostedZoneId,
 });

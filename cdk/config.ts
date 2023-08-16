@@ -9,7 +9,11 @@ export class Config {
   readonly certificateArn: string | undefined;
   readonly ingestorDomainName: string | undefined;
   readonly stacApiCustomDomainName: string | undefined;
+  readonly stacApiRegionalDomainName: string | undefined;
+  readonly stacApiRegionalHostedZoneId: string | undefined;
   readonly titilerPgStacApiCustomDomainName: string | undefined;
+  readonly titilerPgStacApiRegionalDomainName: string | undefined;
+  readonly titilerPgStacApiRegionalHostedZoneId: string | undefined;
 
   constructor() {
     if (!process.env.STAGE) throw Error("Must provide STAGE");
@@ -34,8 +38,14 @@ export class Config {
 
     this.certificateArn = process.env.CERTIFICATE_ARN;
     this.ingestorDomainName = process.env.INGESTOR_DOMAIN_NAME;
-    this.titilerPgStacApiCustomDomainName = process.env.TITILER_PGSTAC_API_CUSTOM_DOMAIN_NAME;
+
     this.stacApiCustomDomainName = process.env.STAC_API_CUSTOM_DOMAIN_NAME;
+    this.stacApiRegionalDomainName = process.env.STAC_API_REGIONAL_DOMAIN_NAME;
+    this.stacApiRegionalHostedZoneId = process.env.STAC_API_REGIONAL_HOSTED_ZONE_ID;
+
+    this.titilerPgStacApiCustomDomainName = process.env.TITILER_PGSTAC_API_CUSTOM_DOMAIN_NAME;
+    this.titilerPgStacApiRegionalDomainName = process.env.TITILER_PGSTAC_API_REGIONAL_DOMAIN_NAME;
+    this.titilerPgStacApiRegionalHostedZoneId = process.env.TITILER_PGSTAC_API_REGIONAL_HOSTED_ZONE_ID;
   }
 
   /**

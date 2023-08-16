@@ -5,7 +5,6 @@ import {
   aws_iam as iam,
   aws_ec2 as ec2,
   aws_rds as rds,
-  aws_apigateway as apigw,
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import {
@@ -18,7 +17,8 @@ import {
   TitilerPgStacApiLambdaProps,
   PgStacApiLambdaProps,
 } from "../eoapi-cdk/lib";
-// import { DomainName } from "@aws-cdk/aws-apigatewayv2-alpha";
+
+import { DomainName } from "@aws-cdk/aws-apigatewayv2-alpha";
 import { readFileSync } from "fs";
 import { load } from "js-yaml";
 
@@ -48,7 +48,17 @@ export class PgStacInfra extends Stack {
         ? ec2.SubnetType.PUBLIC
         : ec2.SubnetType.PRIVATE_WITH_EGRESS,
     };
-    console.log("DOMAIN NAMES: ", props.stacApiCustomDomainName, props.IngestorDomainName, props.titilerPgStacApiCustomDomainName, props.certificateArn)
+
+    console.log("stacApiDomainName: ", 
+      props.stacApiCustomDomainName,
+      props.stacApiRegionalDomainName,
+      props.stacApiRegionalHostedZoneId
+    );
+    console.log("titilerPgstacApiDomainName: ",
+      props.titilerPgStacApiCustomDomainName,
+      props.titilerPgStacApiRegionalDomainName,
+      props.titilerPgStacApiRegionalHostedZoneId
+    )
     let stacApiProps: PgStacApiLambdaProps = {
       apiEnv: {
         NAME: `MAAP STAC API (${stage})`,
@@ -61,26 +71,23 @@ export class PgStacInfra extends Stack {
       subnetSelection: apiSubnetSelection,
     };
 
-    if (props.stacApiCustomDomainName && props.certificateArn) {
-      const existingDomain = apigw.DomainName.fromDomainNameAttributes(this, 'stac-api-domain-name', {
-        domainName: props.stacApiCustomDomainName,
-        domainNameAliasHostedZoneId: 'domainNameAliasHostedZoneId',
-        domainNameAliasTarget: 'domainNameAliasTarget',
+    if (
+      props.stacApiCustomDomainName
+      && props.stacApiRegionalDomainName
+      && props.stacApiRegionalHostedZoneId
+    ) {
+      const existingDomain = DomainName.fromDomainNameAttributes(this, 'stac-api-domain-name', {
+        name: props.stacApiCustomDomainName,
+        regionalDomainName: props.stacApiRegionalDomainName,
+        regionalHostedZoneId: props.stacApiRegionalHostedZoneId,
       });
+  
       stacApiProps = {
         ...stacApiProps,
         stacApiDomainName: existingDomain,
-        // stacApiDomainName: new DomainName(this, "stac-api-domain-name", {
-        //   domainName: props.stacApiCustomDomainName,
-        //   certificate: acm.Certificate.fromCertificateArn(
-        //     this,
-        //     "stacApiCustomDomainNameCertificate",
-        //     props.certificateArn
-        //   ),
-        // }),
       };
     }
-    
+
     const stacApiLambda = new PgStacApiLambda(this, "pgstac-api", stacApiProps);
 
     stacApiLambda.stacApiLambdaFunction.addPermission('ApiGatewayInvoke', {
@@ -104,17 +111,20 @@ export class PgStacInfra extends Stack {
       buckets: buckets,
     };
 
-    if (props.titilerPgStacApiCustomDomainName && props.certificateArn) {
+    if (
+      props.titilerPgStacApiCustomDomainName
+      && props.titilerPgStacApiRegionalDomainName
+      && props.titilerPgStacApiRegionalHostedZoneId
+    ) {
+      const existingDomain = DomainName.fromDomainNameAttributes(this, 'titiler-pgstac-domain-name', {
+        name: props.titilerPgStacApiCustomDomainName,
+        regionalDomainName: props.titilerPgStacApiRegionalDomainName,
+        regionalHostedZoneId: props.titilerPgStacApiRegionalHostedZoneId,
+      });
+
       titilerPgstacProps = {
         ...titilerPgstacProps,
-        titilerPgstacApiDomainName: new DomainName(this, "titiler-pgstac-api-domain-name", {
-          domainName: props.titilerPgStacApiCustomDomainName,
-          certificate: acm.Certificate.fromCertificateArn(
-            this,
-            "titilerPgStacCustomDomainNameCertificate",
-            props.certificateArn
-          ),
-        }),
+        titilerPgstacApiDomainName: existingDomain
       };
     }
     new TitilerPgstacApiLambda(this, "titiler-pgstac-api", titilerPgstacProps);
@@ -240,15 +250,20 @@ export interface Props extends StackProps {
   */
   IngestorDomainName?: string | undefined;
 
+
   /**
    * Domain name to use for titiler pgstac api.
    * Example: "titiler-pgstac-api.dit.maap-project.org"
    */
   titilerPgStacApiCustomDomainName?: string | undefined;
+  titilerPgStacApiRegionalDomainName?: string | undefined;
+  titilerPgStacApiRegionalHostedZoneId?: string | undefined;
 
   /**
    * Domain name to use for stac api.
    * Example: "stac-api.dit.maap-project.org""
    */
   stacApiCustomDomainName?: string | undefined;
+  stacApiRegionalDomainName?: string | undefined;
+  stacApiRegionalHostedZoneId?: string | undefined;
 }
