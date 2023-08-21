@@ -1,12 +1,10 @@
 import {
   Stack,
   StackProps,
-  aws_apigateway as apigateway,
+  aws_certificatemanager as acm,
   aws_iam as iam,
   aws_ec2 as ec2,
   aws_rds as rds,
-  aws_lambda as lambda,
-  aws_iam,
 } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import {
@@ -14,8 +12,9 @@ import {
   PgStacApiLambda,
   PgStacDatabase,
   StacIngestor,
-  TitilerPgstacApiLambda
-} from "cdk-pgstac";
+  TitilerPgstacApiLambda,
+} from "eoapi-cdk";
+import { DomainName } from "@aws-cdk/aws-apigatewayv2-alpha";
 import { readFileSync } from "fs";
 import { load } from "js-yaml";
 
@@ -56,8 +55,20 @@ export class PgStacInfra extends Stack {
       db,
       dbSecret: pgstacSecret,
       subnetSelection: apiSubnetSelection,
-    });
+      stacApiDomainName: (props.stacApiCustomDomainName && props.certificateArn) ? new DomainName(this, "stac-api-domain-name", {
+        domainName: props.stacApiCustomDomainName,
+        certificate: acm.Certificate.fromCertificateArn(
+          this,
+          "stacApiCustomDomainNameCertificate",
+          props.certificateArn
+        ),
+      }): undefined,
+    })
 
+    stacApiLambda.stacApiLambdaFunction.addPermission('ApiGatewayInvoke', {
+      principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+      sourceArn: props.stacApiIntegrationApiArn,
+    });
 
     const fileContents = readFileSync(titilerBucketsPath, 'utf8')
     const buckets = load(fileContents) as string[];
@@ -72,13 +83,17 @@ export class PgStacInfra extends Stack {
       db,
       dbSecret: pgstacSecret,
       subnetSelection: apiSubnetSelection,
-      buckets: buckets
-    });
-
-    stacApiLambda.stacApiLambdaFunction.addPermission('ApiGatewayInvoke', {
-      principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
-      sourceArn: props.stacApiIntegrationApiArn,
-    });
+      buckets: buckets,
+      titilerPgstacApiDomainName: (props.titilerPgStacApiCustomDomainName && props.certificateArn) ? 
+        new DomainName(this, "titiler-pgstac-api-domain-name", {
+          domainName: props.titilerPgStacApiCustomDomainName,
+          certificate: acm.Certificate.fromCertificateArn(
+            this,
+            "titilerPgStacCustomDomainNameCertificate",
+            props.certificateArn
+          ),
+        }): undefined,
+    })
 
     new BastionHost(this, "bastion-host", {
       vpc,
@@ -93,8 +108,7 @@ export class PgStacInfra extends Stack {
     
     const dataAccessRole = iam.Role.fromRoleArn(this, "data-access-role", dataAccessRoleArn);
 
-
-    const stacIngestor = new StacIngestor(this, "stac-ingestor", {
+    new StacIngestor(this, "stac-ingestor", {
       vpc,
       stacUrl: stacApiLambda.url,
       dataAccessRole,
@@ -107,9 +121,16 @@ export class PgStacInfra extends Stack {
       apiEnv: {
         JWKS_URL: jwksUrl,
         REQUESTER_PAYS: "true",
-      }
-    });
-
+      },
+      ingestorDomainNameOptions: (props.IngestorDomainName && props.certificateArn) ? {
+        domainName: props.IngestorDomainName,
+        certificate: acm.Certificate.fromCertificateArn(
+          this,
+          "ingestorCustomDomainNameCertificate",
+          props.certificateArn
+        ),
+      } : undefined
+    })
   }
 }
 
@@ -174,5 +195,28 @@ export interface Props extends StackProps {
    * yaml file containing the list of buckets the titiler lambda should be granted access to
    */
   titilerBucketsPath: string;
+
+  /**
+   * ARN of ACM certificate to use for CDN.
+   * Example: "arn:aws:acm:us-west-2:123456789012:certificate/12345678-1234-1234-1234-123456789012"
+  */
+  certificateArn?: string | undefined;
+
+  /**
+   * Domain name to use for CDN. If defined, a new CDN will be created
+   * Example: "stac.maap.xyz"
+  */
+  IngestorDomainName?: string | undefined;
+
+  /**
+   * Domain name to use for titiler pgstac api. If defined, a new CDN will be created.
+   * Example: "titiler-pgstac-api.dit.maap-project.org"
+   */
+  titilerPgStacApiCustomDomainName?: string | undefined;
+
+  /**
+   * Domain name to use for stac api. If defined, a new CDN will be created.
+   * Example: "stac-api.dit.maap-project.org""
+   */
+  stacApiCustomDomainName?: string | undefined;
 }
-        

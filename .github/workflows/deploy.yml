@@ -30,8 +30,8 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-region: us-west-2
-        role-to-assume: arn:aws:iam::916098889494:role/GithubOIDCRole-MAAP-Project-maap-cdk-pgstac
-        role-session-name: MAAP-CDK-pgstac-deploy
+        role-to-assume: ${{ vars.DEPLOY_ROLE }}
+        role-session-name: MAAP-eoapi-${{ github.event.inputs.deployment_environment }}-deploy
 
     - name: Install deployment dependencies
       run: | 
@@ -54,6 +54,10 @@ jobs:
         GIT_REPOSITORY: ${{ github.repository}}
         COMMIT_SHA: ${{ github.sha }}
         AUTHOR: ${{ github.actor }}
+        CERTIFICATE_ARN: ${{ vars.CERTIFICATE_ARN }}
+        INGESTOR_DOMAIN_NAME: ${{ vars.INGESTOR_DOMAIN_NAME }}
+        TITILER_PGSTAC_API_CUSTOM_DOMAIN_NAME: ${{ vars.TITILER_PGSTAC_API_CUSTOM_DOMAIN_NAME }}
+        STAC_API_CUSTOM_DOMAIN_NAME: ${{ vars.STAC_API_CUSTOM_DOMAIN_NAME}}
       run: |
         npm install -g aws-cdk
         cdk deploy --all --require-approval never
